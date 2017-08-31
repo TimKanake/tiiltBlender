@@ -1,0 +1,13 @@
+#JSGF V1.0;
+grammar basic_commands;
+public <move_action_command> = <tag> <move_action> <object_phrase> <quantity>;
+
+<tag> = (blender);
+<move_action> = (move | shift | translate | drag);
+<object_phrase> = [<color> | <size>]* <shape>;
+<color> = (red | blue | green | orange | yellow | purple | white | black);
+<size> = (small | big | large | medium | tiny) [sized];
+<shape> = (circle | square | sphere | cube | triangle | pyramid);
+<quantity> = (ten);
+
+<action> = <move_action>;

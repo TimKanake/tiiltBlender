@@ -1,0 +1,10 @@
+timestamp	time	fix	state	rawx	rawy	avgx	avgy	psize	Lrawx	Lrawy	Lavgx	Lavgy	Lpsize	Lpupilx	Lpupily	Rrawx	Rrawy	Ravgx	Ravgy	Rpsize	Rpupilx	Rpupily
+MSG	2017-08-30 13:16:02.44		pygaze initiation report start
+MSG	2017-08-30 13:16:02.44		display resolution: 1280x1024
+MSG	2017-08-30 13:16:02.44		display size in cm: 33.8x27.1
+MSG	2017-08-30 13:16:02.44		samplerate: 30.00 Hz
+MSG	2017-08-30 13:16:02.44		sampletime: 33.33 ms
+MSG	2017-08-30 13:16:02.44		fixation threshold: 1.5 degrees
+MSG	2017-08-30 13:16:02.44		speed threshold: 35 degrees/second
+MSG	2017-08-30 13:16:02.44		acceleration threshold: 9500 degrees/second**2
+MSG	2017-08-30 13:16:02.44		pygaze initia

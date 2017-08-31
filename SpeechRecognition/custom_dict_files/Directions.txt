@@ -1,0 +1,17 @@
+up
+down
+left
+right
+north
+south
+east
+west
+forwards
+backwards
+forward
+backward
+top
+bottom
+front
+back
+

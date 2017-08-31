@@ -1,0 +1,11 @@
+up /1e-10/
+down /1e-10/
+left /1e-10/
+right /1e-10/
+forwards /1e-10/
+backwards /1e-10/
+move /1e-10/
+make /1e-10/
+draw /1e-10/
+translate /1e-10/
+pixels /1e-10/

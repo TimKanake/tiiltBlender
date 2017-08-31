@@ -1,0 +1,15 @@
+blue
+red
+orange
+green
+yellow
+black
+brown
+white
+gray
+grey
+maroon
+purple
+cyan
+magenta
+lilac

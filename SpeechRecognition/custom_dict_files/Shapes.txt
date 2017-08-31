@@ -1,0 +1,14 @@
+circle
+circles
+square
+squares
+rectangle
+rectangles
+triangle
+triangles
+cube
+box
+boxes
+monkey
+monkeys
+cylinder
