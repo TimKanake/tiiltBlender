@@ -20,14 +20,14 @@ debug = True
 clients = []
 
 
-def send_command(name, data={}):
+def send_command(name, eye_info, data={}):
     """
     Send a command: name is the target function's name, data is the target
     function's kwargs.
     """
     global clients
     with _lock:
-        data = pickle.dumps(data)
+        data = pickle.dumps(eye_info)
         if debug:
             logging.debug('Sending:' + pformat(data))
         jdata = json.dumps(data) + '\n'
@@ -46,14 +46,12 @@ def send_command(name, data={}):
 def interpret_command(phrase, eye_data):
     parsed = Inter.parse_phrase(phrase)
     if parsed is None:
-        logging.debug('passing returned none')
         return False
-
+    else:
+        logging.debug(parsed)
     try:
         parsed['coord'] = eye_data.get()
-        logging.debug(parsed)
         send_command(parsed['verb'], parsed)
         return True
     except TypeError:
-        #logging.debug('type error')
         return False

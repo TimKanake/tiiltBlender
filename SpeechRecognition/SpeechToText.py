@@ -1,6 +1,9 @@
 from __future__ import print_function
 
+from pocketsphinx.pocketsphinx import *
+from sphinxbase.sphinxbase import *
 from watson_developer_cloud import SpeechToTextV1
+
 import os
 import pyaudio
 import wave
@@ -12,11 +15,12 @@ import math
 import speech_recognition as sr
 
 """
-Written by Aaron Karp, 2017
+Written by Timothy Mwiti, 2017
 Adapted from Sophie Li, 2016
 http://blog.justsophie.com/python-speech-to-text-with-pocketsphinx/
 """
 
+keys = ['cube', 'add', 'move', 'circle', 'monkey', 'rotate']
 
 def speech_2_text(file_name):
     speech_to_text = SpeechToTextV1(
@@ -28,14 +32,13 @@ def speech_2_text(file_name):
     with open(file_name, 'rb') as audio_file:
         results = speech_to_text.recognize(
             audio_file, content_type='audio/wav', timestamps=True,
-            word_confidence=True)
+            word_confidence=True, keywords = keys, keywords_threshold = 1.0)
         first_array = results["results"]
         transcript = ''
         for element in first_array:
             transcript += element["alternatives"][0]["transcript"] + ' '
 
         return transcript
-
 
 class SpeechDetector:
     def __init__(self):
@@ -57,6 +60,20 @@ class SpeechDetector:
         self.THRESHOLD = 2500
         self.num_phrases = -1
 
+        MODELDIR = "libraries/pocketsphinx/model"
+        # DATADIR = "libraries/pocketsphinx/test/data"
+
+        # Create a decoder with certain model
+        config = Decoder.default_config()
+        # turn off pocketsphinx output
+        config.set_string('-logfn', '/dev/null')
+        config.set_string('-hmm', os.path.join(MODELDIR, 'en-us/en-us'))
+        config.set_string('-lm', 'custom_dict_files/dictionary/sample.lm')
+        config.set_string('-dict', 'custom_dict_files/dictionary/sample.dict')
+        config.set_string('-kws', 'custom_dict_files/sample_keyword_list.txt')
+
+        # Creates decoder object for streaming data.
+        self.decoder = Decoder(config)
 
     def setup_mic(self, num_samples=50):
         """ Gets average audio intensity of your mic sound. You can use it to get
@@ -82,12 +99,13 @@ class SpeechDetector:
         p.terminate()
         return r
 
+
     def save_speech(self, data, p):
         """
         Saves mic data to temporary WAV file. Returns filename of saved
         file
         """
-        filename = 'output_' + str(int(time.time()))
+        filename = 'tempfiles/output_' + str(int(time.time()))
         # writes data to WAV file
         data = ''.join(data)
         wf = wave.open(filename + '.wav', 'wb')
@@ -98,7 +116,51 @@ class SpeechDetector:
         wf.close()
         return filename + '.wav'
 
-    def run(self):
+    def decode_phrase(self, wav_file):
+        self.decoder.start_utt()
+        stream = open(wav_file, "rb")
+        while True:
+            buf = stream.read(1024)
+            if buf:
+                self.decoder.process_raw(buf, False, False)
+            else:
+                break
+        self.decoder.end_utt()
+        words = []
+        # [words.append(seg.word) for seg in self.decoder.seg()]
+        hypothesis = self.decoder.hyp()
+        for best, i in zip(self.decoder.nbest(), range(10)):
+            words.append(best.hypstr + ' -- model score: ' + str(best.score))
+        return words
+
+    def decode_phrase_sphinx(self, wav_file):
+        r = sr.Recognizer()
+        with sr.AudioFile(wav_file) as source:
+            audio = r.record(source) # read the entire audio file
+        return r.recognize_sphinx(audio)
+
+    def check_phrase(self, words):
+        idx_to_get = 0  # words.index("zig")
+        command = words[0]
+        print("Top Model: ", command)
+        print()
+        known_words = []
+        unknown_words = []
+        for i in range(len(command)):
+            curr = command[i]
+            if "<" in curr:
+                unknown_words.append(curr)
+            elif "[" in curr:
+                unknown_words.append(curr)
+            else:
+                known_words.append(curr)
+        # print "Known words: ", known_words
+        # print "Unknown words: ", unknown_words
+        best_phrase = ''.join(known_words)
+        best_score = best_phrase.split(' ')[-1:]
+        return ' '.join(best_phrase.split(' ')[:-4])
+
+    def run(self, input_method):
         """
         Listens to Microphone, extracts phrases from it and calls pocketsphinx
         to decode the sound
@@ -134,15 +196,27 @@ class SpeechDetector:
             elif started:
                 print("Finished recording, decoding phrase")
                 filename = self.save_speech(list(prev_audio) + audio2send, p)
-                print(filename)
-                r = speech_2_text(filename)
+                # r = self.decode_phrase(filename)  # Pocketsphinx Decoder
+                #r = self.decode_phrase_sphinx(filename)  # Sphinx Decoder
+                
+                if(input_method == 'watson'):
+                    r = speech_2_text(filename)
+                else:
+                    r = self.decode_phrase_sphinx(filename)
+                
+
+                # best_phrase = self.check_phrase(r)  # Pocketsphinx Decoder
+                best_phrase = r  # Sphinx Decoder
+                #############################################################################################################################
+                # Inter.parse_phrase(best_phrase)
+                #############################################################################################################################
                 # Removes temp audio file
                 os.remove(filename)
                 stream.close()
                 # Reset all
                 print("Ending Loop")
-                print (r)
                 return r
+
             else:
                 prev_audio.append(cur_data)
 

@@ -2,6 +2,7 @@ from __future__ import print_function
 import threading
 import logging
 import socket
+import argparse
 import time
 import sys
 import SpeechToText as Spt
@@ -18,6 +19,12 @@ logging.basicConfig(level=logging.DEBUG,
 
 global_phrase = ''
 
+
+parser = argparse.ArgumentParser(description='Specifies options (Watson, PocketSphinx, Text Input) for command input.')
+parser.add_argument('--input', dest='input_method', default='text', help='Specify the input method that will be used (default: sphinx)', choices = ['watson', 'sphinx','text'])
+
+args = vars(parser.parse_args())
+input_method = args['input_method']
 
 def run_server():
     logging.info('Server started: Ctrl-C to kill')
@@ -79,7 +86,7 @@ if __name__ == '__main__':
     logging.debug('Socket now listening')
 
     sd = Spt.SpeechDetector()
-    #sd.setup_mic()
+    sd.setup_mic()
 
     t = threading.Thread(target=run_server)
     t.daemon = True
@@ -103,13 +110,13 @@ if __name__ == '__main__':
             exit_cmd = 'exit'
             logging.info('Kill server and exit with "%s"' % exit_cmd)
             while True:
-                # FOR TESTING
-                cmd = raw_input('Type A Command ').strip().lower()
-                # FOR RUNNING
-                #cmd = sd.run()
-                logging.debug(cmd)
+                if(input_method == 'text'):
+                    cmd = raw_input('Type a Command: ').strip().lower()
+                else:
+                    cmd = sd.run(input_method)
 
                 if not cmd:
+                    print('Command has not been entered Tim!!!!')
                     pass
                 elif cmd == exit_cmd:
                     break

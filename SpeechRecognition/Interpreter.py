@@ -50,7 +50,11 @@ def parse_phrase(phrase):
         return {'direction': [u''], 'description': [[], []], 'object': u'', 'heresay': None, 'coord': (0.0, 0.0), 'verb': u'quit', 'quantity': 0}
     doc = ''
     try:
-        doc = nlp(unicode(phrase.lower(), encoding="utf-8"))
+        if isinstance(phrase, str):
+            doc = nlp(unicode(phrase.lower(), encoding="utf-8"))
+        else:
+            doc = nlp(phrase)
+        
     except:
         logging.exception('Unable to decode phrase')
         exit()
