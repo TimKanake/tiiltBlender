@@ -24,8 +24,8 @@ keys = ['cube', 'add', 'move', 'circle', 'monkey', 'rotate']
 
 def speech_2_text(file_name):
     speech_to_text = SpeechToTextV1(
-        username='6530ae8b-dc0f-4faa-b132-b969fb68a390',
-        password='nAzf00BUb72T',
+        username='',
+        password='',
         x_watson_learning_opt_out=False
     )
     speech_to_text.get_model('en-US_BroadbandModel')
